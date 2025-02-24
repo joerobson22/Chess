@@ -7,6 +7,9 @@ public class Board
     private int[] pieceSetup = {3, 1, 2, 4, 5, 2, 1, 3};
     private String[] pieceNames = {"Pawn", "Knight" , "Bishop", "Rook", "Queen", "King"};
     private String[] colours = {"#b4b4b4", "#1f4f2d"};
+    //grey : #b4b4b4
+    //green: #1f4f2d
+    private int[] currentlySelectedSquare = {0, 0};
 
     public Board(int squareWidth, int startPointX, int startPointY)
     {
@@ -38,13 +41,13 @@ public class Board
                 Piece p = new Piece(pieceNames[pieceNum], pieceNum, j);
                 board[i][j * 7].setPiece(p);
             }
+            //add pawns
             for(int j = 1; j < 7; j+=5)
             {
-                int pieceNum = 0;
                 colour = 0;
                 if(j == 6)
                     colour++;
-                Piece p = new Piece(pieceNames[pieceNum], pieceNum, colour);
+                Piece.Pawn p = new Piece.Pawn(colour);
                 board[i][j].setPiece(p);
             }
         }
@@ -64,5 +67,15 @@ public class Board
             }
             System.out.printf("\n");
         }
+    }
+
+    public void click(int squareX, int squareY)
+    {
+        //reset currently selected square
+        board[currentlySelectedSquare[0]][currentlySelectedSquare[1]].reset();
+        //set new currently selected square
+        currentlySelectedSquare[0] = squareX;
+        currentlySelectedSquare[1] = squareY;
+        board[squareX][squareY].click();
     }
 }

@@ -11,7 +11,7 @@ public class Main
         //create 'arena' with input manager and game manager
         GameArena arena = new GameArena(width, height, true);
         InputManager inputManager = new InputManager();
-        GameManager gameManager = new GameManager();
+        GameManager gameManager = new GameManager(squareWidth, width, height, startPointX, startPointY);
 
         //set all children so they can communicate
         arena.setInputManager(inputManager);
@@ -20,7 +20,8 @@ public class Main
 
         //create board
         Board board = new Board(squareWidth, startPointX, startPointY);
-        board.outputBoard(arena);
+        //board.outputBoard(arena);
+        gameManager.setBoard(board);
 
         while(true)
         {
