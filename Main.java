@@ -20,8 +20,10 @@ public class Main
 
         //create board
         Board board = new Board(squareWidth, startPointX, startPointY);
-        //board.outputBoard(arena);
+        board.outputBoard(arena);
+        board.setGameArena(arena);
         gameManager.setBoard(board);
+        gameManager.setArena(arena);
 
         while(true)
         {

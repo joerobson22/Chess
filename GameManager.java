@@ -2,11 +2,14 @@ public class GameManager
 {
     private InputManager inputManager;
     private Board board;
+    private GameArena arena;
     private int squareWidth;
     private int width;
     private int height;
     private int startPointX;
     private int startPointY;
+
+    private boolean turn = true; //true: white, false: black
 
     public GameManager(int squareWidth, int width, int height, int startPointX, int startPointY)
     {
@@ -25,6 +28,12 @@ public class GameManager
     public void setBoard(Board board)
     {
         this.board = board;
+        this.board.setGameManager(this);
+    }
+
+    public void setArena(GameArena arena)
+    {
+        this.arena = arena;
     }
 
     public boolean withinBounds(double testX, double testY, int lowerBoundX, int lowerBoundY, int upperBoundX, int upperBoundY)
@@ -40,10 +49,10 @@ public class GameManager
         int rightBound = (startPointX + (squareWidth * 8)) + (squareWidth / 2);
         int upBound = startPointY - (squareWidth / 2);
         int downBound = (startPointY + (squareWidth * 8)) + (squareWidth / 2);
-        System.out.printf("left bound: %d\n", leftBound);
-        System.out.printf("right bound: %d\n", rightBound);
-        System.out.printf("up bound: %d\n", upBound);
-        System.out.printf("down bound: %d\n", downBound);
+        //System.out.printf("left bound: %d\n", leftBound);
+        //System.out.printf("right bound: %d\n", rightBound);
+        //System.out.printf("up bound: %d\n", upBound);
+        //System.out.printf("down bound: %d\n", downBound);
 
         if(withinBounds(mouseX, mouseY, leftBound, downBound, rightBound, upBound))
         {
@@ -56,5 +65,24 @@ public class GameManager
         }
 
         //send that message to the board
+    }
+
+    public void updateGame()
+    {
+        turn = !turn;
+
+        //update all pieces
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                Piece p = board.getBoard()[i][j].getPiece();
+                if(p != null)
+                    p.setTurn((turn && p.getColour() == 0) | (!turn && p.getColour() == 1));
+            }
+        }
+
+        //arena.clearGameArena();
+        //board.outputBoard(arena);
     }
 }
