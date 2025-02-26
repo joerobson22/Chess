@@ -55,6 +55,19 @@ public class Board
             board[rookX][rookY].setPiece(r);
         }
 
+        //KNIGHTS
+        int[][] knightCoords = {{1, 0}, {6, 0}, {1, 7}, {6, 7}};
+        colour = 0;
+        for(int i = 0; i < knightCoords.length; i++)
+        {
+            if(i >= 2)
+                colour = 1;
+            int knightX = knightCoords[i][0];
+            int knightY = knightCoords[i][1];
+            Piece.Knight k = new Piece.Knight(colour, (startPointX + (squareWidth / 2) + (squareWidth * knightX)), (startPointY + (squareWidth / 2) + (squareWidth * knightY)), knightX, knightY);
+            board[knightX][knightY].setPiece(k);
+        }
+
         //BISHOPS
         int[][] bishopCoords = {{2, 0}, {5, 0}, {2, 7}, {5, 7}};
         colour = 0;
@@ -79,6 +92,19 @@ public class Board
             int queenY = queenCoords[i][1];
             Piece.Queen q = new Piece.Queen(colour, (startPointX + (squareWidth / 2) + (squareWidth * queenX)), (startPointY + (squareWidth / 2) + (squareWidth * queenY)), queenX, queenY);
             board[queenX][queenY].setPiece(q);
+        }
+
+        //KINGS
+        int[][] kingCoords = {{4, 0}, {4, 7}};
+        colour = 0;
+        for(int i = 0; i < kingCoords.length; i++)
+        {
+            if(i >= 1)
+                colour = 1;
+            int kingX = kingCoords[i][0];
+            int kingY = kingCoords[i][1];
+            Piece.King k = new Piece.King(colour, (startPointX + (squareWidth / 2) + (squareWidth * kingX)), (startPointY + (squareWidth / 2) + (squareWidth * kingY)), kingX, kingY);
+            board[kingX][kingY].setPiece(k);
         }
 
         //then add all pawns
@@ -241,6 +267,26 @@ public class Board
             }
             
         }
+    }
+
+
+    public boolean isCheck(Square[][] board)
+    {
+        //check whose turn it is
+        boolean turn = gameManager.getTurn(); //true: black, false: white
+        int colour = 1;
+        int kingX;
+        int kingY;
+        if(turn)
+            colour = 0;
+
+        //then, using the board passed in, look at all squares
+        //if king (piecenum == 5) and same colour as current turn: set kingX and kingY to that
+        //see if the square has a piece of the opposite colour
+        //if it does, then check all its moves
+        //if any of them have a 2 where the king is, then it is check
+        
+        return false;
     }
 
     //accessors and mutators

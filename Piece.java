@@ -7,8 +7,8 @@ public class Piece
     protected int colour;
     protected boolean isTurn;
 
-    protected Ball[] balls = new Ball[5];
-    protected Rectangle[] rectangles = new Rectangle[5];
+    protected Ball[] balls = new Ball[6];
+    protected Rectangle[] rectangles = new Rectangle[6];
     protected int ballNum = 0;
     protected int rectangleNum = 0;
 
@@ -504,7 +504,7 @@ public class Piece
 
     //THE QUEEN
     /**
-     * 
+     * can move diagonally and horizontally across the whole board, until there's a piece in the way
      */
     public static class Queen extends Piece
     {
@@ -514,6 +514,90 @@ public class Piece
             super("Queen", 4, colour, x, y, squareX, squareY);
 
             //assign attributes unique to the queen
+            ballNum = 0;
+            rectangleNum = 6;
+            //create new circle and rectangles and add to the arrays
+            Rectangle base = new Rectangle(0, 0, 68, 20, colours[colour], 2);
+            Rectangle prong1 = new Rectangle(0, 0, 8, 25, colours[colour], 2);
+            Rectangle prong2 = new Rectangle(0, 0, 8, 30, colours[colour], 2);
+            Rectangle prong3 = new Rectangle(0, 0, 8, 35, colours[colour], 2);
+            Rectangle prong4 = new Rectangle(0, 0, 8, 30, colours[colour], 2);
+            Rectangle prong5 = new Rectangle(0, 0, 8, 25, colours[colour], 2);
+            rectangles[0] = base;
+            rectangles[1] = prong1;
+            rectangles[2] = prong2;
+            rectangles[3] = prong3;
+            rectangles[4] = prong4;
+            rectangles[5] = prong5;
+
+            //set moveset
+            moveSetX = new int[8];
+            moveSetY = new int[8];
+
+            //left
+            moveSetX[0] = -1;
+            moveSetY[0] = 0;
+            //right
+            moveSetX[1] = 1;
+            moveSetY[1] = 0;
+            //up
+            moveSetX[2] = 0;
+            moveSetY[2] = -1;
+            //down
+            moveSetX[3] = 0;
+            moveSetY[3] = 1;
+
+            //leftup
+            moveSetX[4] = -1;
+            moveSetY[4] = -1;
+            //rightup
+            moveSetX[5] = 1;
+            moveSetY[5] = 1;
+            //rightdown
+            moveSetX[6] = 1;
+            moveSetY[6] = -1;
+            //leftdown
+            moveSetX[7] = -1;
+            moveSetY[7] = 1;
+
+            maxMoves = 8;
+
+            //update the visuals
+            updateVisuals();
+        }
+
+        @Override public void updateVisuals()
+        {
+            //base
+            rectangles[0].setXPosition(x - 34);
+            rectangles[0].setYPosition(y);
+            //prongs
+            rectangles[1].setXPosition(x - 34);
+            rectangles[1].setYPosition(y - 15);
+            rectangles[2].setXPosition(x - 19);
+            rectangles[2].setYPosition(y - 20);
+            rectangles[3].setXPosition(x - 4);
+            rectangles[3].setYPosition(y - 25);
+            rectangles[4].setXPosition(x + 11);
+            rectangles[4].setYPosition(y - 20);
+            rectangles[5].setXPosition(x + 26);
+            rectangles[5].setYPosition(y - 15);
+        }
+    }
+
+    
+    //KING
+    /** 
+     * can move in all directions but only one square
+     */
+    public static class King extends Piece
+    {
+        public King(int colour, int x, int y, int squareX, int squareY)
+        {   
+            //call super constructor
+            super("King", 5, colour, x, y, squareX, squareY);
+
+            //assign attributes unique to the King
             ballNum = 2;
             rectangleNum = 2;
             //create new circle and rectangles and add to the arrays
@@ -556,7 +640,7 @@ public class Piece
             moveSetX[7] = -1;
             moveSetY[7] = 1;
 
-            maxMoves = 8;
+            maxMoves = 1;
 
             //update the visuals
             updateVisuals();
@@ -573,6 +657,111 @@ public class Piece
             rectangles[0].setYPosition(y);
             rectangles[1].setXPosition(x - 5);
             rectangles[1].setYPosition(y - 30);
+        }
+    }
+
+
+    //KNIGHT
+    /**
+     * knight: can move in 'L' shapes and can jump over pieces
+     */
+    public static class Knight extends Piece
+    {
+        /**
+         * constructor for child Knight, uniquely sets itself up with name "Knight" and piecenum 0, as well as visuals and its moveset
+         * @param colour
+         * @param x
+         * @param y
+         * @param squareX
+         * @param squareY
+         */
+        public Knight(int colour, int x, int y, int squareX, int squareY)
+        {   
+            //call super constructor
+            super("Knight", 1, colour, x, y, squareX, squareY);
+
+            //assign attributes unique to the Knight
+            ballNum = 2;
+            rectangleNum = 2;
+            //create new circle and rectangles and add to the arrays
+            Ball head = new Ball(0, 0, 30, colours[colour], 2);
+            Ball nose = new Ball(0, 0, 20, colours[colour], 2);
+            Rectangle body = new Rectangle(0, 0, 20, 25, colours[colour], 2);
+            Rectangle base = new Rectangle(0, 0, 25, 15, colours[colour], 2);
+            balls[0] = head;
+            balls[1] = nose;
+            rectangles[0] = body;
+            rectangles[1] = base;
+
+            //set moveset
+            moveSetX = new int[8];
+            moveSetY = new int[8];
+            //1 up, 2 left
+            moveSetX[0] = -1;
+            moveSetY[0] = -2;
+            //2 up, 1 left
+            moveSetX[1] = -2;
+            moveSetY[1] = -1;
+            //2 up, 1 right
+            moveSetX[2] = 1;
+            moveSetY[2] = -2;
+            //1 up, 2 right
+            moveSetX[3] = 2;
+            moveSetY[3] = -1;
+            //1 down, 2 right
+            moveSetX[4] = 2;
+            moveSetY[4] = 1;
+            //2 down, 1 right
+            moveSetX[5] = 1;
+            moveSetY[5] = 2;
+            //2 down, 1 left
+            moveSetX[6] = -1;
+            moveSetY[6] = 2;
+            //1 down, 2 left
+            moveSetX[7] = -2;
+            moveSetY[7] = 1;
+            
+            maxMoves = 0;
+
+            //update the visuals
+            updateVisuals();
+        }
+
+        /**
+         * pawn's unique getSpecialMoves() function, allowing it to behave uniquely
+         */
+        @Override public int[][] getSpecialMoves(Square[][] board, int[][] moves)
+        {
+            //now go through all linear moves in the moveset
+            int numMoves = moveSetX.length;
+            for(int i = 0; i < numMoves; i++)
+            {
+                int destX = squareX + moveSetX[i];
+                int destY = squareY + moveSetY[i];
+                if(inBounds(destX, destY))
+                {
+                    moves[destX][destY] = canMoveThere(board, destX, destY);
+                }
+            }
+
+            //return 2d array of moves that can occur
+            return moves;
+        }
+
+        /**
+         * updates the different components of the piece's visuals dynamically
+         */
+        @Override public void updateVisuals()
+        {
+            balls[0].setXPosition(x);
+            balls[0].setYPosition(y - 8);
+            balls[1].setXPosition(x - 7);
+            balls[1].setYPosition(y - 3);
+
+            rectangles[0].setXPosition(x - 5);
+            rectangles[0].setYPosition(y - 5);
+            rectangles[1].setXPosition(x - 10);
+            rectangles[1].setYPosition(y + 20);
         }
     }
 }

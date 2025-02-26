@@ -128,5 +128,8 @@ public class GameManager
         this.arena = arena;
     }
 
-    
+    public boolean getTurn()
+    {
+        return turn;
+    }
 }
