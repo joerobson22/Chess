@@ -1,6 +1,6 @@
 public class Piece
 {
-    protected String[] colours = {"White", "Black"};
+    protected String[] colours = {"Black", "White"};
 
     protected String pieceName;
     protected int pieceNum;
@@ -17,65 +17,42 @@ public class Piece
     protected int movDir;
     protected int x;
     protected int y;
+    protected int[] moveSetX;
+    protected int[] moveSetY;
+    protected int maxMoves;
 
-    
+    /**
+     * Constructor
+     * @param pieceName name of the piece (pawn, rook, knight etc)
+     * @param pieceNum piece number for further identification
+     * @param colour piece colour to idenfity what team it is on
+     * @param x piece's x coordinate, used for displaying it in the gamearena
+     * @param y piece's y coordinate, used for displaying it in the gamearena
+     * @param squareX piece's initial square X
+     * @param squareY piece's initial square Y
+     */
     public Piece(String pieceName, int pieceNum, int colour, int x, int y, int squareX, int squareY)
     {
         this.pieceName = pieceName;
         this.pieceNum = pieceNum;
         this.colour = colour;
-        isTurn = colour == 0;
+        isTurn = colour == 1;
         this.x = x;
         this.y = y;
         this.squareX = squareX;
         this.squareY = squareY;
     }
 
-    public void setCoordinates(int x, int y, int squareX, int squareY)
-    {
-        this.x = x;
-        this.y = y;
-        this.squareX = squareX;
-        this.squareY = squareY;
-        updateVisuals();
-    }
-
+    //functionality
     public void updateVisuals()
     {
         
     }
 
-    public boolean isTurn()
-    {
-        return this.isTurn;
-    }
-
-    public void setTurn(boolean turn)
-    {
-        this.isTurn = turn;
-    }
-    
-
-    public String getPieceName()
-    {
-        return pieceName;
-    }
-
-    public int getPieceNum()
-    {
-        return pieceNum;
-    }
-
-    public int getColour()
-    {
-        return colour;
-    }
-
-    public boolean isSameColour(int col)
-    {
-        return(col == colour);
-    }
-
+    /**
+     * takes a game arena and adds all balls and rectangles to it
+     * @param arena
+     */
     public void addTo(GameArena arena)
     {
         for(int i = 0; i < ballNum; i++)
@@ -89,6 +66,10 @@ public class Piece
         }
     }
 
+    /**
+     * takes a game arena and removes all balls and rectangles from it
+     * @param arena
+     */
     public void removeFrom(GameArena arena)
     {
         for(int i = 0; i < ballNum; i++)
@@ -102,11 +83,24 @@ public class Piece
         }
     }
 
+    /**
+     * takes an x and y coordinate and determines if they are within the board
+     * @param x
+     * @param y
+     * @return true or false
+     */
     protected boolean inBounds(int x, int y)
     {
         return(x >= 0 && x < 8 && y >= 0 && y < 8);
     }
 
+    /**
+     * identifies if a piece can move to a given square and what will happen if it does
+     * @param board the board, containing all squares and pieces
+     * @param destX the destination x
+     * @param destY the destination y
+     * @return  0: cannot move there, 1: can move there, won't take a piece, 2: can move there, will take a piece
+     */
     protected int canMoveThere(Square[][] board, int destX, int destY)
     {
         if(board[destX][destY].getPiece() == null)
@@ -120,21 +114,164 @@ public class Piece
         return 0;
     }
 
+    /**
+     * returns a 2d array of integers 0-2 that identifies where a piece can move
+     * @param board the board, containing all squares and pieces
+     * @return 2d array
+     */
     public int[][] getMoveSquares(Square[][] board)
     {
         int[][] moves = new int[8][8];
+        //initialise
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                moves[i][j] = 0;
+            }
+        }
+
+        //now go through all linear moves in the moveset
+        int numMoves = moveSetX.length;
+        for(int i = 0; i < numMoves; i++)
+        {
+            for(int j = 1; j < maxMoves + 1; j++)
+            {
+                int destX = squareX + (j * moveSetX[i]);
+                int destY = squareY + (j * moveSetY[i]);
+                int moveVal = 0;
+                if(inBounds(destX, destY))
+                {
+                    moveVal = canMoveThere(board, destX, destY);
+                    moves[destX][destY] = moveVal;
+                }
+                    
+                
+                //if out of bounds, or piece blocking the way, stop checking this move direction
+                if(moveVal == 0 | moveVal == 2)
+                {
+                    break;
+                }
+            }
+        }
+
+        //now look at all special moves unique to the piece
+        moves = getSpecialMoves(board, moves);
+
         return moves;
     }
 
-    public void hasMoved()
+    /**
+     * for pieces with unique behaviour (pawn, knight) where movement is not linear, this function allows them to behave differently
+     * @param board the board, containing all squares and pieces
+     * @param moves the 2d array passed from getMoves() that will be returned after modification
+     * @return
+     */
+    public int[][] getSpecialMoves(Square[][] board, int[][] moves)
     {
-
+        return moves;
     }
 
+    /**
+     * identifies if a piece has moved yet
+     */
+    public void hasMoved()
+    {
+        
+    }
+
+    //accessors and mutators
+
+    /**
+     * sets a piece's x and y both visually in the game arena, and functionally in the grid
+     * @param x new gamearena x
+     * @param y new gamearena y
+     * @param squareX new grid x
+     * @param squareY new grid y
+     */
+    public void setCoordinates(int x, int y, int squareX, int squareY)
+    {
+        this.x = x;
+        this.y = y;
+        this.squareX = squareX;
+        this.squareY = squareY;
+        updateVisuals();
+    }
+
+    /**
+     * identifies if it is a piece's turn based on its colour
+     * @return
+     */
+    public boolean isTurn()
+    {
+        return this.isTurn;
+    }
+
+    /**
+     * tells the piece if it is its turn or not
+     * @param turn
+     */
+    public void setTurn(boolean turn)
+    {
+        this.isTurn = turn;
+    }
+    
+    /**
+     * gets the piece's name
+     * @return
+     */
+    public String getPieceName()
+    {
+        return pieceName;
+    }
+
+    /**
+     * gets the piece's number
+     */
+    public int getPieceNum()
+    {
+        return pieceNum;
+    }
+
+    /**
+     * gets the piece's colour
+     * @return
+     */
+    public int getColour()
+    {
+        return colour;
+    }
+
+    /**
+     * identifies if, given a colour, a piece is on its team, and returns that fact
+     * @return boolean col == colour; 
+     * */
+    public boolean isSameColour(int col)
+    {
+        return(col == colour);
+    }
+
+    //CHILDREN
+
+
     //each square has one piece, so this piece just needs to be able to be transferred around between squares
+    //THE PAWN:
+    /**
+     * can only move forward once at a time, but cannot take pieces directly ahead of it
+     * can only take pieces DIAGONALLY, but can only move diagonally when there is a piece there
+     * can move forward twice on its first turn
+     */
     public static class Pawn extends Piece
     {
         private boolean hasMoved = false;
+        /**
+         * constructor for child pawn, uniquely sets itself up with name "pawn" and piecenum 0, as well as visuals and its moveset
+         * @param colour
+         * @param x
+         * @param y
+         * @param squareX
+         * @param squareY
+         */
         public Pawn(int colour, int x, int y, int squareX, int squareY)
         {   
             //call super constructor
@@ -161,13 +298,20 @@ public class Piece
                 movDir = -1;
             }
 
+            //set moveset
+            moveSetX = new int[0];
+            moveSetY = new int[0];
+            maxMoves = 0;
+
             //update the visuals
             updateVisuals();
         }
 
-        @Override public int[][] getMoveSquares(Square[][] board)
+        /**
+         * pawn's unique getSpecialMoves() function, allowing it to behave uniquely
+         */
+        @Override public int[][] getSpecialMoves(Square[][] board, int[][] moves)
         {
-            int[][] moves = new int[8][8];
             //initialise
             for(int i = 0; i < 8; i++)
             {
@@ -213,6 +357,9 @@ public class Piece
             return moves;
         }
 
+        /**
+         * updates the different components of the piece's visuals dynamically
+         */
         @Override public void updateVisuals()
         {
             balls[0].setXPosition(x);
@@ -225,10 +372,207 @@ public class Piece
             rectangles[1].setYPosition(y + 25);
         }
 
+        /**
+         * changes that the piece has moved to true, preventing it from jumping forward 2 squares
+         */
         @Override public void hasMoved()
         {
             hasMoved = true;
         }
     }
 
+
+    //THE ROOK:
+    /**
+     * can move up, down, left, right as many times as possible, up until there is another piece in the way
+     * if the piece is on the other team, it will take that piece
+     */
+    public static class Rook extends Piece
+    {
+        public Rook(int colour, int x, int y, int squareX, int squareY)
+        {   
+            //call super constructor
+            super("Rook", 3, colour, x, y, squareX, squareY);
+
+            //assign attributes unique to the rook
+            ballNum = 1;
+            rectangleNum = 0;
+            //create new circle and rectangles and add to the arrays
+            Ball head = new Ball(0, 0, 50, colours[colour], 2);
+            //Rectangle body = new Rectangle(0, 0, 10, 25, colours[colour], 2);
+            //Rectangle base = new Rectangle(0, 0, 20, 10, colours[colour], 2);
+            balls[0] = head;
+            //rectangles[0] = body;
+            //rectangles[1] = base;
+
+            //set moveset
+            moveSetX = new int[4];
+            moveSetY = new int[4];
+
+            //left
+            moveSetX[0] = -1;
+            moveSetY[0] = 0;
+            //right
+            moveSetX[1] = 1;
+            moveSetY[1] = 0;
+            //up
+            moveSetX[2] = 0;
+            moveSetY[2] = -1;
+            //down
+            moveSetX[3] = 0;
+            moveSetY[3] = 1;
+
+            maxMoves = 8;
+
+            //update the visuals
+            updateVisuals();
+        }
+
+        @Override public void updateVisuals()
+        {
+            balls[0].setXPosition(x);
+            balls[0].setYPosition(y);
+
+            //rectangles[0].setXPosition(x - 5);
+            //rectangles[0].setYPosition(y);
+
+            //rectangles[1].setXPosition(x - 10);
+            //rectangles[1].setYPosition(y + 25);
+        }
+    }
+
+
+    //THE BISHOP:
+    /**
+     * can move diagnoally in all directions up until there is another piece in the way
+     * if the piece is on the other team, it will take that piece
+     */
+    public static class Bishop extends Piece
+    {
+        public Bishop(int colour, int x, int y, int squareX, int squareY)
+        {   
+            //call super constructor
+            super("Bishop", 2, colour, x, y, squareX, squareY);
+
+            //assign attributes unique to the bishop
+            ballNum = 0;
+            rectangleNum = 1;
+            //create new circle and rectangles and add to the arrays
+            //Ball head = new Ball(0, 0, 50, colours[colour], 2);
+            Rectangle body = new Rectangle(0, 0, 20, 60, colours[colour], 2);
+            //Rectangle base = new Rectangle(0, 0, 20, 10, colours[colour], 2);
+            //balls[0] = head;
+            rectangles[0] = body;
+            //rectangles[1] = base;
+
+            //set moveset
+            moveSetX = new int[4];
+            moveSetY = new int[4];
+
+            //left
+            moveSetX[0] = -1;
+            moveSetY[0] = -1;
+            //right
+            moveSetX[1] = 1;
+            moveSetY[1] = 1;
+            //up
+            moveSetX[2] = 1;
+            moveSetY[2] = -1;
+            //down
+            moveSetX[3] = -1;
+            moveSetY[3] = 1;
+
+            maxMoves = 8;
+
+            //update the visuals
+            updateVisuals();
+        }
+
+        @Override public void updateVisuals()
+        {
+            //balls[0].setXPosition(x);
+            //balls[0].setYPosition(y);
+
+            rectangles[0].setXPosition(x - 10);
+            rectangles[0].setYPosition(y - 30);
+
+            //rectangles[1].setXPosition(x - 10);
+            //rectangles[1].setYPosition(y + 25);
+        }
+    }
+
+
+    //THE QUEEN
+    /**
+     * 
+     */
+    public static class Queen extends Piece
+    {
+        public Queen(int colour, int x, int y, int squareX, int squareY)
+        {   
+            //call super constructor
+            super("Queen", 4, colour, x, y, squareX, squareY);
+
+            //assign attributes unique to the queen
+            ballNum = 2;
+            rectangleNum = 2;
+            //create new circle and rectangles and add to the arrays
+            Ball ball1 = new Ball(0, 0, 30, colours[colour], 2);
+            Ball ball2 = new Ball(0, 0, 30, colours[colour], 2);
+            Rectangle rectangle1 = new Rectangle(0, 0, 60, 20, colours[colour], 2);
+            Rectangle rectangle2 = new Rectangle(0, 0, 10, 30, colours[colour], 2);
+            balls[0] = ball1;
+            balls[1] = ball2;
+            rectangles[0] = rectangle1;
+            rectangles[1] = rectangle2;
+
+            //set moveset
+            moveSetX = new int[8];
+            moveSetY = new int[8];
+
+            //left
+            moveSetX[0] = -1;
+            moveSetY[0] = 0;
+            //right
+            moveSetX[1] = 1;
+            moveSetY[1] = 0;
+            //up
+            moveSetX[2] = 0;
+            moveSetY[2] = -1;
+            //down
+            moveSetX[3] = 0;
+            moveSetY[3] = 1;
+
+            //leftup
+            moveSetX[4] = -1;
+            moveSetY[4] = -1;
+            //rightup
+            moveSetX[5] = 1;
+            moveSetY[5] = 1;
+            //rightdown
+            moveSetX[6] = 1;
+            moveSetY[6] = -1;
+            //leftdown
+            moveSetX[7] = -1;
+            moveSetY[7] = 1;
+
+            maxMoves = 8;
+
+            //update the visuals
+            updateVisuals();
+        }
+
+        @Override public void updateVisuals()
+        {
+            balls[0].setXPosition(x - 15);
+            balls[0].setYPosition(y);
+            balls[1].setXPosition(x + 15);
+            balls[1].setYPosition(y);
+
+            rectangles[0].setXPosition(x - 30);
+            rectangles[0].setYPosition(y);
+            rectangles[1].setXPosition(x - 5);
+            rectangles[1].setYPosition(y - 30);
+        }
+    }
 }

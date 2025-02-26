@@ -9,8 +9,16 @@ public class GameManager
     private int startPointX;
     private int startPointY;
 
-    private boolean turn = true; //true: white, false: black
+    private boolean turn = false; //true: black, false: white
 
+    /**
+     * constructor for game manager
+     * @param squareWidth takes the square width
+     * @param width takes the window's entire width
+     * @param height takes the window's entire height
+     * @param startPointX takes the startpointX to start drawing rectangles from
+     * @param startPointY takes the startpointY to start drawing rectangles from
+     */
     public GameManager(int squareWidth, int width, int height, int startPointX, int startPointY)
     {
         this.squareWidth = squareWidth;
@@ -20,27 +28,29 @@ public class GameManager
         this.startPointY = startPointY;
     }
 
-    public void setInputManager(InputManager inputManager)
-    {
-        this.inputManager = inputManager;
-    }
+    //functionality
 
-    public void setBoard(Board board)
-    {
-        this.board = board;
-        this.board.setGameManager(this);
-    }
-
-    public void setArena(GameArena arena)
-    {
-        this.arena = arena;
-    }
-
+    /**
+     * takes an X and Y to test, and identifies if it is within the 4 bounds also passed to it
+     * @param testX x to test
+     * @param testY y to test
+     * @param lowerBoundX lower x bound to compare with
+     * @param lowerBoundY lower y bound to compare with
+     * @param upperBoundX upper x bound to compare with
+     * @param upperBoundY upper y bound to compare with
+     * @return true or false
+     */
     public boolean withinBounds(double testX, double testY, int lowerBoundX, int lowerBoundY, int upperBoundX, int upperBoundY)
     {
         return(testX >= lowerBoundX & testX <= upperBoundX & testY <= lowerBoundY & testY >= upperBoundY);
     }
 
+    /**
+     * click, called originally by gamearena, passed to inputmanager and then to gamemanager
+     * if within bounds of the board, identify what square has been clicked on?
+     * @param mouseX the mouse's x
+     * @param mouseY the mouse's y
+     */
     public void click(double mouseX, double mouseY)
     {
         //identify what square on the board was clicked
@@ -67,6 +77,9 @@ public class GameManager
         //send that message to the board
     }
 
+    /**
+     * updates all pieces turn attribute
+     */
     public void updateGame()
     {
         turn = !turn;
@@ -85,4 +98,35 @@ public class GameManager
         //arena.clearGameArena();
         //board.outputBoard(arena);
     }
+
+    //accessors and mutators
+
+    /**
+     * sets the gamemanager's inputmanagerfor later reference
+     * @param inputManager
+     */
+    public void setInputManager(InputManager inputManager)
+    {
+        this.inputManager = inputManager;
+    }
+
+    /**
+     * sets the gamemanager's board for later reference
+     * @param board
+     */
+    public void setBoard(Board board)
+    {
+        this.board = board;
+        this.board.setGameManager(this);
+    }
+
+    /**
+     * sets the gamemanager's arena for later reference
+     */
+    public void setArena(GameArena arena)
+    {
+        this.arena = arena;
+    }
+
+    
 }
