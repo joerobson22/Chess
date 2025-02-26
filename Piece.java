@@ -170,7 +170,7 @@ public class Piece
     public int[][] getSpecialMoves(Square[][] board, int[][] moves)
     {
         return moves;
-    }
+    }    
 
     /**
      * identifies if a piece has moved yet
@@ -327,19 +327,22 @@ public class Piece
             //look one ahead
             if(inBounds(destX, destY))
                 if(canMoveThere(board, destX, destY) == 1)
+                {
                     moves[destX][destY] = canMoveThere(board, destX, destY);
-                else
-                moves[destX][destY] = 0;
-
-            //if hasn't moved, look 2 ahead
-            if(!hasMoved)
-            {
-                destY += 1 * movDir;
-                if(canMoveThere(board, destX, destY) == 1)
-                    moves[destX][destY] = canMoveThere(board, destX, destY);
+                    //if hasn't moved, look 2 ahead
+                    if(!hasMoved)
+                    {
+                        destY += 1 * movDir;
+                        if(canMoveThere(board, destX, destY) == 1)
+                            moves[destX][destY] = canMoveThere(board, destX, destY);
+                        else
+                            moves[destX][destY] = 0;
+                    }
+                }   
                 else
                     moves[destX][destY] = 0;
-            }
+
+            
 
             //look for captures diagonally
             destX -= 1;
@@ -395,15 +398,19 @@ public class Piece
             super("Rook", 3, colour, x, y, squareX, squareY);
 
             //assign attributes unique to the rook
-            ballNum = 1;
-            rectangleNum = 0;
+            ballNum = 0;
+            rectangleNum = 5;
             //create new circle and rectangles and add to the arrays
-            Ball head = new Ball(0, 0, 50, colours[colour], 2);
-            //Rectangle body = new Rectangle(0, 0, 10, 25, colours[colour], 2);
-            //Rectangle base = new Rectangle(0, 0, 20, 10, colours[colour], 2);
-            balls[0] = head;
-            //rectangles[0] = body;
-            //rectangles[1] = base;
+            Rectangle body = new Rectangle(0, 0, 20, 25, colours[colour], 2);
+            Rectangle base = new Rectangle(0, 0, 30, 15, colours[colour], 2);
+            Rectangle peak1 = new Rectangle(0, 0, 8, 15, colours[colour], 2);
+            Rectangle peak2 = new Rectangle(0, 0, 8, 15, colours[colour], 2);
+            Rectangle peak3 = new Rectangle(0, 0, 8, 15, colours[colour], 2);
+            rectangles[0] = body;
+            rectangles[1] = base;
+            rectangles[2] = peak1;
+            rectangles[3] = peak2;
+            rectangles[4] = peak3;
 
             //set moveset
             moveSetX = new int[4];
@@ -430,14 +437,16 @@ public class Piece
 
         @Override public void updateVisuals()
         {
-            balls[0].setXPosition(x);
-            balls[0].setYPosition(y);
-
-            //rectangles[0].setXPosition(x - 5);
-            //rectangles[0].setYPosition(y);
-
-            //rectangles[1].setXPosition(x - 10);
-            //rectangles[1].setYPosition(y + 25);
+            rectangles[0].setXPosition(x - 10);
+            rectangles[0].setYPosition(y - 5);
+            rectangles[1].setXPosition(x - 15);
+            rectangles[1].setYPosition(y + 20);
+            rectangles[2].setXPosition(x - 15);
+            rectangles[2].setYPosition(y - 15);
+            rectangles[3].setXPosition(x - 4);
+            rectangles[3].setYPosition(y - 15);
+            rectangles[4].setXPosition(x + 7);
+            rectangles[4].setYPosition(y - 15);
         }
     }
 
@@ -455,15 +464,15 @@ public class Piece
             super("Bishop", 2, colour, x, y, squareX, squareY);
 
             //assign attributes unique to the bishop
-            ballNum = 0;
-            rectangleNum = 1;
+            ballNum = 1;
+            rectangleNum = 2;
             //create new circle and rectangles and add to the arrays
-            //Ball head = new Ball(0, 0, 50, colours[colour], 2);
-            Rectangle body = new Rectangle(0, 0, 20, 60, colours[colour], 2);
-            //Rectangle base = new Rectangle(0, 0, 20, 10, colours[colour], 2);
-            //balls[0] = head;
+            Ball head = new Ball(0, 0, 23, colours[colour], 2);
+            Rectangle body = new Rectangle(0, 0, 20, 40, colours[colour], 2);
+            Rectangle base = new Rectangle(0, 0, 30, 15, colours[colour], 2);
+            balls[0] = head;
             rectangles[0] = body;
-            //rectangles[1] = base;
+            rectangles[1] = base;
 
             //set moveset
             moveSetX = new int[4];
@@ -490,14 +499,13 @@ public class Piece
 
         @Override public void updateVisuals()
         {
-            //balls[0].setXPosition(x);
-            //balls[0].setYPosition(y);
+            balls[0].setXPosition(x);
+            balls[0].setYPosition(y - 20);
 
             rectangles[0].setXPosition(x - 10);
-            rectangles[0].setYPosition(y - 30);
-
-            //rectangles[1].setXPosition(x - 10);
-            //rectangles[1].setYPosition(y + 25);
+            rectangles[0].setYPosition(y - 20);
+            rectangles[1].setXPosition(x - 15);
+            rectangles[1].setYPosition(y + 20);
         }
     }
 
@@ -687,7 +695,7 @@ public class Piece
             Ball head = new Ball(0, 0, 30, colours[colour], 2);
             Ball nose = new Ball(0, 0, 20, colours[colour], 2);
             Rectangle body = new Rectangle(0, 0, 20, 25, colours[colour], 2);
-            Rectangle base = new Rectangle(0, 0, 25, 15, colours[colour], 2);
+            Rectangle base = new Rectangle(0, 0, 30, 15, colours[colour], 2);
             balls[0] = head;
             balls[1] = nose;
             rectangles[0] = body;
@@ -758,9 +766,9 @@ public class Piece
             balls[1].setXPosition(x - 7);
             balls[1].setYPosition(y - 3);
 
-            rectangles[0].setXPosition(x - 5);
+            rectangles[0].setXPosition(x - 10);
             rectangles[0].setYPosition(y - 5);
-            rectangles[1].setXPosition(x - 10);
+            rectangles[1].setXPosition(x - 15);
             rectangles[1].setYPosition(y + 20);
         }
     }

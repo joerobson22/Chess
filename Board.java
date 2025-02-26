@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Board
 {
     private GameManager gameManager;
@@ -254,6 +256,7 @@ public class Board
                 Piece p = selectedSquare.getPiece();
                 if(p != null)
                     moves = p.getMoveSquares(board);
+                moves = checkForCheck(moves, selectedX, selectedY);
                 //using that, change 'movable' variable for each square
                 for(int i = 0; i < 8; i++)
                 {
@@ -270,23 +273,102 @@ public class Board
     }
 
 
-    public boolean isCheck(Square[][] board)
+    /**
+     * checks all squares, looks at all possible moves for each piece
+     * @param board
+     * @return
+     */
+    public boolean isCheck(Square[][] board, boolean turn)
     {
-        //check whose turn it is
-        boolean turn = gameManager.getTurn(); //true: black, false: white
         int colour = 1;
-        int kingX;
-        int kingY;
+        int kingX = -1;
+        int kingY = -1;
         if(turn)
             colour = 0;
 
+        //find the king first
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                Piece piece = board[i][j].getPiece();
+                if(piece != null)
+                {
+                    //if king (piecenum == 5) and same colour as current turn: set kingX and kingY to that
+                    if(piece.getPieceNum() == 5 && piece.isSameColour(colour))
+                    {
+                        //System.out.printf("king found!\n");
+                        kingX = i;
+                        kingY = j;
+                        break;
+                    }
+                }
+            }
+            if(kingX > -1)
+                break;
+        }
+
         //then, using the board passed in, look at all squares
-        //if king (piecenum == 5) and same colour as current turn: set kingX and kingY to that
-        //see if the square has a piece of the opposite colour
-        //if it does, then check all its moves
-        //if any of them have a 2 where the king is, then it is check
-        
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                Piece piece = board[i][j].getPiece();
+                if(piece != null)
+                {
+                    if(!piece.isSameColour(colour))
+                    {
+                        //if it does, then check all its moves
+                        int[][] moves = piece.getMoveSquares(board);
+                        //if any of them have a 2 where the king is, then it is check
+                        if(moves[kingX][kingY] == 2)
+                            return true;
+                    }
+                }
+            }
+            
+        }
         return false;
+    }
+
+
+    public int[][] checkForCheck(int[][] moves, int currentX, int currentY)
+    {
+        //check all move squares in the 2d array above 0
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                if(moves[i][j] > 0)
+                {
+                    //for a move square, move the piece on the board copy, and call isCheck, passing the altered board copy and turn in.
+                    Piece oldPiece = board[i][j].getPiece();
+                    board[i][j].setPiece(board[currentX][currentY].getPiece());
+                    board[currentX][currentY].setPiece(null);
+                    //if true, then that move cannot happen, so set that square to 0
+                    if(isCheck(board, gameManager.getTurn()))
+                    {
+                        moves[i][j] = 0;
+                    }
+                    board[currentX][currentY].setPiece(board[i][j].getPiece());
+                    board[i][j].setPiece(oldPiece);
+                }
+            }
+        }
+        return moves;
+    }
+
+    public Square[][] cloneBoard()
+    {
+        Square[][] copy = new Square[8][8];
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                copy[i] = Arrays.copyOf(board[i], board[i].length);    
+            }
+        }
+        return copy;
     }
 
     //accessors and mutators

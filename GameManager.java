@@ -95,8 +95,8 @@ public class GameManager
             }
         }
 
-        //arena.clearGameArena();
-        //board.outputBoard(arena);
+        if(board.isCheck(board.getBoard(), turn))
+            System.out.printf("Check!\n");
     }
 
     //accessors and mutators
