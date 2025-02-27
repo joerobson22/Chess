@@ -55,6 +55,7 @@ public class Piece
      */
     public void addTo(GameArena arena)
     {
+        //System.out.printf("adding to arena\n");
         for(int i = 0; i < ballNum; i++)
         {
             arena.addBall(balls[i]);
@@ -72,6 +73,7 @@ public class Piece
      */
     public void removeFrom(GameArena arena)
     {
+        //System.out.printf("removing from arena\n");
         for(int i = 0; i < ballNum; i++)
         {
             arena.removeBall(balls[i]);
@@ -172,13 +174,6 @@ public class Piece
         return moves;
     }    
 
-    /**
-     * identifies if a piece has moved yet
-     */
-    public void hasMoved()
-    {
-        
-    }
 
     //accessors and mutators
 
@@ -251,6 +246,29 @@ public class Piece
         return(col == colour);
     }
 
+    public boolean justMovedDouble()
+    {
+        return false;
+    }
+
+    public void setJustMovedDouble()
+    {
+        
+    }
+
+    /**
+     * tells a piece it has moved
+     */
+    public void hasMoved()
+    {
+        
+    }
+
+    public int getEndY()
+    {
+        return -1;
+    }
+
     //CHILDREN
 
 
@@ -264,6 +282,8 @@ public class Piece
     public static class Pawn extends Piece
     {
         private boolean hasMoved = false;
+        private boolean justMovedDouble = false;
+        private int endY;
         /**
          * constructor for child pawn, uniquely sets itself up with name "pawn" and piecenum 0, as well as visuals and its moveset
          * @param colour
@@ -297,6 +317,11 @@ public class Piece
             {
                 movDir = -1;
             }
+
+            if(squareY == 1)
+                endY = 7;
+            else
+                endY = 0;
 
             //set moveset
             moveSetX = new int[0];
@@ -381,6 +406,11 @@ public class Piece
         @Override public void hasMoved()
         {
             hasMoved = true;
+        }
+
+        @Override public int getEndY()
+        {
+            return endY;
         }
     }
 

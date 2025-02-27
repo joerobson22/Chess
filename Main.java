@@ -25,10 +25,27 @@ public class Main
         gameManager.setBoard(board);
         gameManager.setArena(arena);
 
-        while(true)
+        while(gameManager.getGameStatus() == 0)
         {
             //pause for 1/50th of a second
             arena.pause();
+        }
+
+        System.out.printf("GAME END!\n");
+        if(gameManager.getGameStatus() == 1)
+        {
+            if(gameManager.getTurn())
+            {
+                System.out.printf("White wins!\n");
+            }
+            else
+            {
+                System.out.printf("Black wins!\n");
+            }
+        }
+        else
+        {
+            System.out.printf("Draw by stalemate!\n");
         }
     }
 }

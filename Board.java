@@ -16,6 +16,10 @@ public class Board
     private int selectedX = -1;
     private int selectedY = -1;
 
+    private int startPointX;
+    private int startPointY;
+    private int squareWidth;
+
     /**
      * constructor, takes the squarewidth and the coordinates of startpoints to start drawing rectangles from
      * @param squareWidth squarewidth
@@ -24,6 +28,10 @@ public class Board
      */
     public Board(int squareWidth, int startPointX, int startPointY)
     {
+        this.startPointX = startPointX;
+        this.startPointY = startPointY;
+        this.squareWidth = squareWidth;
+
         int colour = 0;
         for(int i = 0; i < 8; i++)
         {
@@ -57,6 +65,7 @@ public class Board
             board[rookX][rookY].setPiece(r);
         }
 
+        
         //KNIGHTS
         int[][] knightCoords = {{1, 0}, {6, 0}, {1, 7}, {6, 7}};
         colour = 0;
@@ -69,6 +78,7 @@ public class Board
             Piece.Knight k = new Piece.Knight(colour, (startPointX + (squareWidth / 2) + (squareWidth * knightX)), (startPointY + (squareWidth / 2) + (squareWidth * knightY)), knightX, knightY);
             board[knightX][knightY].setPiece(k);
         }
+            
 
         //BISHOPS
         int[][] bishopCoords = {{2, 0}, {5, 0}, {2, 7}, {5, 7}};
@@ -181,7 +191,11 @@ public class Board
         //is current selected == new selected?
             //yes: 'click' the square, set current selected to -1
             //no: 'reset' currently selected (as long as not -1) and 'click' new square, as well as setting current selected to new selected
-        if(newSquare.getPiece() == null && !newSquare.isMovable())
+        if(gameManager.getGameStatus() != 0)
+        {
+            //ignore
+        }
+        else if(newSquare.getPiece() == null && !newSquare.isMovable())
         {
             //ignore
             //System.out.printf("empty and unmovable\n");
@@ -332,6 +346,13 @@ public class Board
     }
 
 
+    /**
+     * function called within click() and checkGameEnd which removes any spaces that a piece could move to that would result in it being check
+     * @param moves the 2d array of integers that determines where a piece could move to
+     * @param currentX x coordinate of the piece
+     * @param currentY y coordinate of the piece
+     * @return the altered 2d array without any invalid moves
+     */
     public int[][] checkForCheck(int[][] moves, int currentX, int currentY)
     {
         //check all move squares in the 2d array above 0
@@ -358,18 +379,143 @@ public class Board
         return moves;
     }
 
-    public Square[][] cloneBoard()
+
+    /**
+     * checks if the game is either stalemate or checkmate
+     * if the current player has no moves:
+     * if it is check, they lost by checkmate
+     * if it isn't, they have drawn by stalemate
+     * otherwise, just quickly check if there are only kings, in which case, stalemate
+     * @param turn whose turn it is
+     * @return the game status- 0: fine, 1: checkmate, 2: stalemate
+     */
+    public int checkGameEnd(boolean turn)
     {
-        Square[][] copy = new Square[8][8];
+        int colour = 1;
+        if(turn)
+            colour = 0;
+        //first check if the person whose turn it currently is has any moves
+        if(noMoves(colour))
+        {
+            //if no moves:
+            //if check: lose by checkmate
+            if(isCheck(board, turn))
+            {
+                System.out.printf("CHECKMATE!\n");
+                return 1;
+            }
+            //if not check: draw by stalemate
+            else
+            {
+                System.out.printf("STALEMATE!\n");
+                return 2;
+            }
+        }
+
+        //now, check if there are only kings left
+        if(justKings())
+            return 2;
+
+        return 0;
+    }
+
+
+    /**
+     * checks if there are only kings left on the board
+     * @return true or false
+     */
+    public boolean justKings()
+    {
         for(int i = 0; i < 8; i++)
         {
             for(int j = 0; j < 8; j++)
             {
-                copy[i] = Arrays.copyOf(board[i], board[i].length);    
+                Piece p = board[i][j].getPiece();
+                if(p != null)
+                    if(p.getPieceNum() < 5)
+                        return false;
             }
         }
-        return copy;
+        return true;
     }
+
+
+    /**
+     * takes a tema colour and identifies if that team has any available moves
+     * scans all pieces on that team, then scans all their moves until finding one that is greater than 0, which means it can move
+     * @param colour colour of team whose turn it is
+     * @return true or false- true means no moves, false means moves
+     */
+    public boolean noMoves(int colour)
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                Piece piece = board[i][j].getPiece();
+                if(piece != null)
+                {
+                    if(piece.isSameColour(colour))
+                    {
+                        int[][] moves = checkForCheck(piece.getMoveSquares(board), i, j);
+                        if(!movesEmpty(moves))
+                        {
+                            return false;
+                        }   
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * searches through a given move 2d array for any value > 0, which means it can move there
+     * @param moves
+     * @return
+     */
+    public boolean movesEmpty(int[][] moves)
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                if(moves[i][j] > 0)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * checks if any pawns have reached the end of the board by checking their endY
+     */
+    public void checkForPromotion()
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                Piece p = board[i][j].getPiece();
+                if(p != null)
+                {
+                    if(p.getPieceNum() == 0 && j == p.getEndY())
+                    {
+                        //promote!
+                        Piece.Queen q = new Piece.Queen(p.getColour(), (startPointX + (squareWidth / 2) + (squareWidth * i)), (startPointY + (squareWidth / 2) + (squareWidth * j)), i, j);
+                        board[i][j].getPiece().removeFrom(arena);
+                        board[i][j].setPiece(q);
+                        q.addTo(arena);
+                    }
+                }
+            }
+        }
+    }
+
 
     //accessors and mutators
 

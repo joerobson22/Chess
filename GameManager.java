@@ -8,6 +8,7 @@ public class GameManager
     private int height;
     private int startPointX;
     private int startPointY;
+    private int gameStatus = 0;
 
     private boolean turn = false; //true: black, false: white
 
@@ -95,8 +96,12 @@ public class GameManager
             }
         }
 
+        board.checkForPromotion();
+
         if(board.isCheck(board.getBoard(), turn))
             System.out.printf("Check!\n");
+        
+        gameStatus = board.checkGameEnd(turn);
     }
 
     //accessors and mutators
@@ -131,5 +136,10 @@ public class GameManager
     public boolean getTurn()
     {
         return turn;
+    }
+
+    public int getGameStatus()
+    {
+        return gameStatus;
     }
 }
