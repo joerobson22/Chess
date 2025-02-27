@@ -273,6 +273,11 @@ public class Piece
         
     }
 
+    public boolean getHasMoved()
+    {
+        return false;
+    }
+
     public int getEndY()
     {
         return -1;
@@ -493,6 +498,7 @@ public class Piece
      */
     public static class Rook extends Piece
     {
+        boolean hasMoved = false;
         public Rook(int colour, int x, int y, int squareX, int squareY)
         {   
             //call super constructor
@@ -531,6 +537,7 @@ public class Piece
             moveSetY[3] = 1;
 
             maxMoves = 8;
+            
 
             //update the visuals
             updateVisuals();
@@ -548,6 +555,19 @@ public class Piece
             rectangles[3].setYPosition(y - 15);
             rectangles[4].setXPosition(x + 7);
             rectangles[4].setYPosition(y - 15);
+        }
+
+        /**
+         * changes that the piece has moved to true, preventing it from jumping forward 2 squares
+         */
+        @Override public void hasMoved()
+        {
+            hasMoved = true;
+        }
+
+        @Override public boolean getHasMoved()
+        {
+            return hasMoved;
         }
     }
 
@@ -701,6 +721,7 @@ public class Piece
      */
     public static class King extends Piece
     {
+        boolean hasMoved = false;
         public King(int colour, int x, int y, int squareX, int squareY)
         {   
             //call super constructor
@@ -750,9 +771,112 @@ public class Piece
             moveSetY[7] = 1;
 
             maxMoves = 1;
+            
 
             //update the visuals
             updateVisuals();
+        }
+
+
+        @Override public int[][] getSpecialMoves(Square[][] board, int[][] moves)
+        {
+            //this is for castling!!!
+            //RULEs for castling:
+                //king and rook must not have moved
+                //must be empty space between king and rook
+                //all spaces between must not be in 'check'
+            
+            //STEPS
+                //first: identify if the king and the rook have both not moved yet
+                //then identify if all squares between are null and not takeable
+                //if both conditions met: 
+                    //the square next to the rook becomes movable (denoted with a 5 for the board's reference)
+                    //the square next to the king (on that rook's side obviously) is where the rook will go
+            //left side
+            int rookX = 0;
+            moves = canCastle(rookX, board, moves);
+            rookX = 7;
+            moves = canCastle(rookX, board, moves);
+
+            return moves;
+        }
+
+        public int[][] canCastle(int rookX, Square[][] board, int[][] moves)
+        {
+            int destX = -1;
+            if(rookX < squareX)
+            {
+                destX = 2;
+            }
+            else
+            {
+                destX = 6;
+            }
+
+            if(!hasMoved)
+            {
+                Piece p = board[rookX][squareY].getPiece();
+                if(p != null)
+                {
+                    if(p.getPieceNum() == 3 && !p.getHasMoved())
+                    {
+                        //neither has moved
+                        int startX = 0;
+                        int endX = 0;
+                        if(rookX < squareX)
+                        {
+                            startX = 1;
+                            endX = squareX;
+                        }
+                        else
+                        {
+                            startX = squareX + 1;
+                            endX = rookX;
+                        }
+                        boolean valid = true;
+                        for(int i = startX; i < endX; i++)
+                        {
+                            if(board[i][squareY].getPiece() != null | wouldBeInCheck(i, squareY, board))
+                            {
+                                valid = false;
+                                break;
+                            }
+                        }
+                        if(valid)
+                        {
+                            moves[destX][squareY] = 5;
+                        }
+                    }
+                }
+            }
+            return moves;
+        }
+
+
+        public boolean wouldBeInCheck(int x, int y, Square[][] board)
+        {
+            for(int i = 0; i < 8; i++)
+            {
+                for(int j = 0; j < 8; j++)
+                {
+                    Piece piece = board[i][j].getPiece();
+                    if(piece != null)
+                    {
+                        if(!piece.getHasMoved() && piece.getPieceNum() == 5)
+                        {
+                            //ignore
+                        }
+                        else if(!piece.isSameColour(colour))
+                        {
+                            //if it does, then check all its moves
+                            int[][] moves = piece.getMoveSquares(board);
+                            if(moves[x][y] == 2)
+                                return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         @Override public void updateVisuals()
@@ -766,6 +890,19 @@ public class Piece
             rectangles[0].setYPosition(y);
             rectangles[1].setXPosition(x - 5);
             rectangles[1].setYPosition(y - 30);
+        }
+
+        /**
+         * changes that the piece has moved to true, preventing it from jumping forward 2 squares
+         */
+        @Override public void hasMoved()
+        {
+            hasMoved = true;
+        }
+
+        @Override public boolean getHasMoved()
+        {
+            return hasMoved;
         }
     }
 

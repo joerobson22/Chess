@@ -263,8 +263,7 @@ public class Board
                 {
                     newSquare.getPiece().setJustMovedDouble(true);
                 }
-
-                if(newSquare.getEnPassantable())
+                else if(newSquare.getEnPassantable())
                 {
                     //we need to get the move direction of the pawn that just moved diagonally
                     int movDir = newSquare.getPiece().getMovDir();
@@ -275,6 +274,30 @@ public class Board
                     //set that square's piece to null
                     board[squareX][squareY].getPiece().removeFrom(arena);
                     board[squareX][squareY].setPiece(null);
+                }
+                else if(newSquare.getCastlable())
+                {
+                    //first figure out where the rook will end up
+                    int rookDestX;
+                    int rookDestY = squareY;
+                    int rookOriginX;
+                    int rookOriginY = squareY;
+                    if(squareX == 2)
+                    {
+                        rookDestX = 3;
+                        rookOriginX = 0;
+                    }
+                    else
+                    {
+                        rookDestX = 5;
+                        rookOriginX = 7;
+                    }
+                    //then move the rook there?
+                    Square originRookSquare = board[rookOriginX][rookOriginY];
+                    Square newRookSquare = board[rookDestX][rookDestY];
+                    newRookSquare.setPiece(originRookSquare.getPiece());
+                    newRookSquare.setPieceCoordinates(rookDestX, rookDestY);
+                    originRookSquare.setPiece(null);
                 }
 
                 //reset board
@@ -308,6 +331,7 @@ public class Board
                         s.setMovable(moves[i][j] > 0);
                         s.setDoubleMovable(moves[i][j] == 3);
                         s.setEnPassantable(moves[i][j] == 4);
+                        s.setCastlable(moves[i][j] == 5);
                         s.update();
                     }
                 }

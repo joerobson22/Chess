@@ -13,6 +13,7 @@ public class Square
     private boolean movable = false;
     private boolean isDoubleMovable = false;
     private boolean enPassantable = false;
+    private boolean isCastlable = false;
     private int x;
     private int y;
     private int squareWidth;
@@ -75,6 +76,7 @@ public class Square
     //resets all boolean variables and resets its colour
     public void reset()
     {
+        isCastlable = false;
         enPassantable = false;
         isDoubleMovable = false;
         movable = false;
@@ -102,8 +104,7 @@ public class Square
     {
         if(piece != null)
             piece.setCoordinates(x + (squareWidth / 2), y + (squareWidth / 2), squareX, squareY);
-            if(piece.getPieceNum() == 0)
-                piece.hasMoved();
+            piece.hasMoved();
     }
 
     /**
@@ -155,6 +156,18 @@ public class Square
         if(val)
             System.out.printf("I AM EN PASSANTABLE\n");
         enPassantable = val;
+    }
+
+    public boolean getCastlable()
+    {
+        return isCastlable;
+    }
+
+    public void setCastlable(boolean val)
+    {
+        if(val)
+            System.out.printf("I AM CASTLABLE\n");
+        isCastlable = val;
     }
     
 }
