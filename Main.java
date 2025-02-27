@@ -7,8 +7,8 @@ public class Main
     public static void main(String[] args)
     {
         final int squareWidth = 80;
-        final int width = 700;
-        final int height = 700;
+        final int width = 800;
+        final int height = 800;
         int boardSize = squareWidth * 8;
         int startPointX = (width / 2) - (boardSize / 2);
         int startPointY = (height / 2) - (boardSize / 2);
