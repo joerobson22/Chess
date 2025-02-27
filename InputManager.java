@@ -1,3 +1,7 @@
+/**
+ * Provides an interface where inputs detected by the gamearena can be specifically distributed to different members of this class
+ * @author Joe Robson
+ */
 public class InputManager
 {
     private GameManager gameManager;

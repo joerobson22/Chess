@@ -1,3 +1,7 @@
+/**
+ * Provides a main function for the program to be run through
+ * @author Joe Robson
+ */
 public class Main
 {
     public static void main(String[] args)

@@ -1,3 +1,7 @@
+/**
+ * A single piece, with multiple children that inherit from it and behave different
+ * @author Joe Robson
+ */
 public class Piece
 {
     protected String[] colours = {"Black", "White"};
@@ -251,9 +255,14 @@ public class Piece
         return false;
     }
 
-    public void setJustMovedDouble()
+    public void setJustMovedDouble(boolean val)
     {
         
+    }
+
+    public int getMovDir()
+    {
+        return 0;
     }
 
     /**
@@ -353,15 +362,13 @@ public class Piece
             if(inBounds(destX, destY))
                 if(canMoveThere(board, destX, destY) == 1)
                 {
-                    moves[destX][destY] = canMoveThere(board, destX, destY);
+                    moves[destX][destY] = 1;
                     //if hasn't moved, look 2 ahead
                     if(!hasMoved)
                     {
                         destY += 1 * movDir;
                         if(canMoveThere(board, destX, destY) == 1)
-                            moves[destX][destY] = canMoveThere(board, destX, destY);
-                        else
-                            moves[destX][destY] = 0;
+                            moves[destX][destY] = 3;
                     }
                 }   
                 else
@@ -380,6 +387,43 @@ public class Piece
             if(inBounds(destX, destY))
                 if(canMoveThere(board, destX, destY) == 2)
                     moves[destX][destY] = 2;
+            
+            
+            //en passant
+            //check left and right
+            //if there is a pawn directly next to this pawn that has just moved double:
+                //you can take on the square behind it
+            destX = squareX - 1;
+            destY = squareY;
+            if(inBounds(destX, destY))
+            {
+                Piece p = board[destX][destY].getPiece();
+                if(p != null)
+                    if(p.justMovedDouble())
+                    {
+                        //the pawn to the LEFT has just moved double
+                        //therefore we can TAKE on square destX, destY + (1 * movDir) --> signify with number 4
+                        destY = squareY + (1 * movDir);
+                        moves[destX][destY] = 4;
+                    }
+            }
+
+            destX = squareX + 1;
+            destY = squareY;
+            if(inBounds(destX, destY))
+            {
+                Piece p = board[destX][destY].getPiece();
+                if(p != null)
+                    if(p.justMovedDouble())
+                    {
+                        //the pawn to the RIGHT has just moved double
+                        //therefore we can TAKE on square destX, destY + (1 * movDir) --> signify with number 4
+                        destY = squareY + (1 * movDir);
+                        moves[destX][destY] = 4;
+                    }
+            }
+
+
 
             //return 2d array of moves that can occur
             return moves;
@@ -408,9 +452,36 @@ public class Piece
             hasMoved = true;
         }
 
+        /**
+         * returns a pawn's end Y for ease of comparison later by the board
+         */
         @Override public int getEndY()
         {
             return endY;
+        }
+
+        /**
+         * returns the variable justMovedDouble for pawns too identify if they can en passant one another
+         */
+        @Override public boolean justMovedDouble()
+        {
+            return justMovedDouble;
+        }
+
+        /**
+         * sets the justMovedDOUble variable
+         */
+        @Override public void setJustMovedDouble(boolean val)
+        {
+            justMovedDouble = val;
+        }
+
+        /**
+         * gets the pawn's move direction
+         */
+        @Override public int getMovDir()
+        {
+            return movDir;
         }
     }
 

@@ -1,5 +1,7 @@
-import java.util.Arrays;
-
+/**
+ * The chess board itself
+ * @author Joe Robson
+ */
 public class Board
 {
     private GameManager gameManager;
@@ -158,6 +160,20 @@ public class Board
         }
     }
 
+
+    public void outputMoves(int[][] moves)
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            for(int j = 0; j < 8; j++)
+            {
+                System.out.printf("%d ", moves[j][i]);
+            }
+            System.out.printf("\n");
+        }
+    }
+
+
     /**
      * resets all squares, making them not selected or movable
      */
@@ -168,7 +184,9 @@ public class Board
         {
             for(int j = 0; j < 8; j++)
             {
-                board[i][j].reset();
+                Square s = board[i][j];
+                s.reset();
+                s.update();
             }
         }
     }
@@ -241,16 +259,25 @@ public class Board
                 selectedX = -1;
                 selectedY = -1;
 
-                //reset board
-                for(int i = 0; i < 8; i++)
+                if(newSquare.isDoubleMovable())
                 {
-                    for(int j = 0; j < 8; j++)
-                    {
-                        Square s = board[i][j];
-                        s.reset();
-                        s.update();
-                    }
+                    newSquare.getPiece().setJustMovedDouble(true);
                 }
+
+                if(newSquare.getEnPassantable())
+                {
+                    //we need to get the move direction of the pawn that just moved diagonally
+                    int movDir = newSquare.getPiece().getMovDir();
+                    //flip the move direction
+                    movDir *= -1;
+                    //add it to the squareY
+                    squareY += movDir;
+                    //set that square's piece to null
+                    board[squareX][squareY].getPiece().removeFrom(arena);
+                    board[squareX][squareY].setPiece(null);
+                }
+
+                //reset board
                 resetBoard();
                 //turn has been taken, update game manager
                 gameManager.updateGame();
@@ -271,6 +298,7 @@ public class Board
                 if(p != null)
                     moves = p.getMoveSquares(board);
                 moves = checkForCheck(moves, selectedX, selectedY);
+                //outputMoves(moves);
                 //using that, change 'movable' variable for each square
                 for(int i = 0; i < 8; i++)
                 {
@@ -278,6 +306,8 @@ public class Board
                     {
                         Square s = board[i][j];
                         s.setMovable(moves[i][j] > 0);
+                        s.setDoubleMovable(moves[i][j] == 3);
+                        s.setEnPassantable(moves[i][j] == 4);
                         s.update();
                     }
                 }

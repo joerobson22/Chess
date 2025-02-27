@@ -1,3 +1,7 @@
+/**
+ * Individual squares of the chess board, manages what piece is on it
+ * @author Joe Robson
+ */
 public class Square
 {
     private Piece piece;
@@ -7,6 +11,8 @@ public class Square
 
     private boolean selected = false;
     private boolean movable = false;
+    private boolean isDoubleMovable = false;
+    private boolean enPassantable = false;
     private int x;
     private int y;
     private int squareWidth;
@@ -69,6 +75,8 @@ public class Square
     //resets all boolean variables and resets its colour
     public void reset()
     {
+        enPassantable = false;
+        isDoubleMovable = false;
         movable = false;
         selected = false;
         rectangle.setColour(colour);
@@ -125,5 +133,28 @@ public class Square
         return movable;
     }
 
+
+    public void setDoubleMovable(boolean isDoubleMovable)
+    {
+        this.isDoubleMovable = isDoubleMovable;
+    }
+
+
+    public boolean isDoubleMovable()
+    {
+        return isDoubleMovable;
+    }
+
+    public boolean getEnPassantable()
+    {
+        return enPassantable;
+    }
+
+    public void setEnPassantable(boolean val)
+    {
+        if(val)
+            System.out.printf("I AM EN PASSANTABLE\n");
+        enPassantable = val;
+    }
     
 }

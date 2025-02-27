@@ -1,3 +1,7 @@
+/**
+ * Manages the game's state and calls functions on the board and its members based on this
+ * @author Joe Robson
+ */
 public class GameManager
 {
     private InputManager inputManager;
@@ -92,7 +96,14 @@ public class GameManager
             {
                 Piece p = board.getBoard()[i][j].getPiece();
                 if(p != null)
+                {
                     p.setTurn((turn && p.getColour() == 0) | (!turn && p.getColour() == 1));
+                    if(p.isTurn())
+                    {
+                        p.setJustMovedDouble(false);
+                    }
+                }
+                    
             }
         }
 
