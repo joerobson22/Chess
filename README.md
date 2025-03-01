@@ -1,4 +1,4 @@
-Chess!
+# __Chess__
 
 Currently only local 1v1, but I aim to add a simple bot you can play against soon.
 
